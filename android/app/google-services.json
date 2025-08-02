@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "39018621045",
+    "firebase_url": "https://school-51c12-default-rtdb.firebaseio.com",
+    "project_id": "school-51c12",
+    "storage_bucket": "school-51c12.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39018621045:android:1d42d1ac3112d2507c303c",
+        "android_client_info": {
+          "package_name": "com.example.school_fls"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7zb17WHKAlZQzWz2rrc6uET7VfRx96Vk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
