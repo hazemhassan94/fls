@@ -6,6 +6,8 @@ import 'package:school_fls/intro/intro.dart';
 import 'package:school_fls/main_axis_pages/teachers/main_teachers.dart';
 import 'package:school_fls/login_page/features/auth/cubit/auth_cubit.dart';
 import 'package:school_fls/login_page/features/auth/data/auth_repository.dart';
+import 'package:school_fls/login_page/auto_login_page.dart';
+import 'package:school_fls/intro/select_role.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: const IntroPage(),
         routes: {
+          '/auto-login': (_) => const AutoLoginPage(),
+          '/role-selection': (_) => const RoleSelectionPage(),
           '/teacher/home': (_) => const TeacherHomePage(),
           // Add other routes here later:
           // '/student/home': (_) => const StudentHomePage(),
