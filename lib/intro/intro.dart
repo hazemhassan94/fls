@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:school_fls/intro/select_role.dart'; 
+import 'package:school_fls/login_page/auto_login_page.dart'; 
 
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
@@ -15,7 +15,7 @@ class _IntroPageState extends State<IntroPage> {
     super.initState();
     Timer(const Duration(seconds: 3), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RoleSelectionPage()),
+        MaterialPageRoute(builder: (_) => const AutoLoginPage()),
       );
     });
   }

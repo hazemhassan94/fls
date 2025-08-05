@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../data/auth_repository.dart';
+import '../data/role_detection_service.dart';
 import '../models/user_model.dart';
 import '../presentation/complete_profile_page.dart';
 
@@ -28,8 +29,78 @@ class AuthError extends AuthState {
 /// Cubit
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository repo;
+  final RoleDetectionService roleDetectionService;
 
-  AuthCubit(this.repo) : super(AuthInitial());
+  AuthCubit(this.repo) : roleDetectionService = RoleDetectionService(), super(AuthInitial());
+
+  /// تسجيل الدخول التلقائي مع كشف الدور من Firebase
+  Future<void> loginWithAutoRoleDetection(
+    BuildContext context, {
+    required String email,
+    required String password,
+  }) async {
+    emit(AuthLoading());
+
+    try {
+      // تسجيل الدخول أولاً
+      await repo.signIn(email, password);
+      
+      // كشف الدور تلقائياً
+      final detectedRole = await roleDetectionService.detectUserRole();
+      
+      if (detectedRole == null) {
+        await repo.signOut();
+        throw 'User not found in any role collection. Please contact administrator.';
+      }
+
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      
+      // تحديد اسم المجموعة الفعلية
+      String collectionName = detectedRole;
+      if (['hr', 'deputy', 'financial', 'public_chat', 'publicchat', 'chat'].contains(detectedRole)) {
+        collectionName = 'admin';
+      }
+
+      // جلب بيانات المستخدم من المجموعة المناسبة
+      final doc = await repo.getUserDoc(collectionName, uid);
+      if (!doc.exists) {
+        await repo.signOut();
+        throw 'User data not found in $collectionName collection.';
+      }
+
+      final userData = doc.data() as Map<String, dynamic>? ?? {};
+      final isCompleted = _isProfileComplete(userData, detectedRole);
+
+      if (!context.mounted) return;
+
+      if (!isCompleted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => CompleteProfilePage(role: detectedRole)),
+        );
+        emit(AuthInitial());
+      } else {
+        emit(AuthSuccess(detectedRole));
+      }
+    } catch (e) {
+      final err = e.toString();
+      emit(AuthError(err));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login failed: $err"), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  /// فحص ما إذا كان المستخدم موجود في قاعدة البيانات
+  Future<String?> checkUserExistence(String email) async {
+    try {
+      return await roleDetectionService.detectUserRole(email: email);
+    } catch (e) {
+      return null;
+    }
+  }
 
   /// تسجيل الدخول وتحديد الدور الفعلي من Firestore
   Future<void> loginAndRedirect(
